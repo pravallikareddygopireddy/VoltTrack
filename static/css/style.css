@@ -1,0 +1,744 @@
+/* VoltTrack - Battery Shop Management System
+Simple White Theme with Black Outlines
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap');
+
+
+
+:root{
+--bg-dark: #ffffff;
+--bg-card: #ffffff;
+--bg-card-hover: #f8f9fa;
+--bg-input: #ffffff;
+--border-color: #000000;
+--border-glow: rgba(0, 0, 0, 0.1);
+
+--primary-volt: #ffd700;
+--primary-volt-glow: rgba(255, 215, 0, 0.2);
+--accent-cyan: #087e8b;
+--accent-blue: #2563eb;
+--accent-green: #15803d;
+--accent-red: #dc2626;
+--accent-orange: #ea580c;
+
+--text-main: #000000;
+--text-muted: #404040;
+--text-dim: #666666;
+
+--glass-bg: #ffffff;
+--glass-border: 1px solid #000000;
+}
+
+/* =========================
+2. GENERAL STYLES
+========================= */
+
+*{
+box-sizing: border-box;
+}
+
+body {
+background: #ffffff !important;
+color: #000000 !important;
+font-family: 'Inter', system-ui, -apple-system, sans-serif;
+min-height: 100vh;
+margin: 0;
+padding-bottom: 3rem;
+overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6,
+.brand-font {
+font-family: 'Outfit', sans-serif;
+color: #000000;
+}
+
+p,
+label,
+small {
+color: #000000;
+}
+
+a {
+color: #000000;
+}
+
+.text-muted,
+.text-secondary,
+.text-white,
+.text-light {
+color: #000000 !important;
+}
+
+/* =========================
+3. NAVBAR
+========================= */
+
+.volt-navbar {
+background: #ffffff !important;
+border-bottom: 1px solid #000000;
+padding: 0.85rem 1.5rem;
+position: sticky;
+top: 0;
+z-index: 1030;
+}
+
+.brand-logo {
+font-size: 1.4rem;
+font-weight: 800;
+color: #000000 !important;
+text-decoration: none;
+display: flex;
+align-items: center;
+gap: 0.5rem;
+}
+
+.brand-logo .volt-icon {
+color: #c49a00;
+filter: none;
+animation: none;
+}
+
+.nav-link {
+color: #333333 !important;
+font-weight: 500;
+font-size: 0.92rem;
+padding: 0.5rem 0.9rem !important;
+border-radius: 8px;
+transition: background 0.2s ease;
+display: flex;
+align-items: center;
+gap: 0.4rem;
+}
+
+.nav-link,
+.nav-link.active {
+color: #000000 !important;
+background: #f1f1f1 !important;
+}
+
+.nav-link.active {
+border-bottom: 2px solid #000000;
+}
+
+/* =========================
+4. VOLTTRACK CARDS
+========================= */
+
+.volt-card {
+background: #ffffff !important;
+color: #000000 !important;
+border: 1px solid #000000 !important;
+border-radius: 12px;
+padding: 1.5rem;
+box-shadow: none;
+backdrop-filter: none;
+transition: none;
+height: 100%;
+}
+
+.volt-card {
+box-shadow: none;
+transform: none;
+}
+
+.cat-card {
+background: #ffffff !important;
+color: #000000 !important;
+border: 1px solid #000000 !important;
+border-radius: 10px;
+padding: 1.25rem;
+transition: background 0.2s ease;
+}
+
+.cat-card {
+background: #f8f9fa !important;
+border-color: #000000;
+}
+
+.cat-number {
+font-size: 1.8rem;
+font-weight: 800;
+color: #8a6500 !important;
+}
+
+.stat-value {
+font-size: 2rem;
+font-weight: 800;
+line-height: 1.1;
+margin-top: 0.5rem;
+color: #000000 !important;
+}
+
+.stat-label {
+color: #404040 !important;
+font-size: 0.85rem;
+font-weight: 500;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+}
+
+.stat-icon-wrapper {
+width: 52px;
+height: 52px;
+border-radius: 14px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.5rem;
+}
+
+.stat-icon-yellow {
+background: #fff8cc;
+color: #8a6500;
+border: 1px solid #000000;
+}
+
+.stat-icon-cyan {
+background: #e0f7fa;
+color: #087e8b;
+border: 1px solid #000000;
+}
+
+.stat-icon-red {
+background: #fee2e2;
+color: #dc2626;
+border: 1px solid #000000;
+}
+
+.stat-icon-green {
+background: #dcfce7;
+color: #15803d;
+border: 1px solid #000000;
+}
+
+/* =========================
+5. BUTTONS
+========================= */
+
+.btn-volt {
+background: #ffd700 !important;
+color: #000000 !important;
+font-weight: 700;
+border: 1px solid #000000 !important;
+border-radius: 8px;
+padding: 0.6rem 1.3rem;
+transition: background 0.2s ease;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+gap: 0.5rem;
+box-shadow: none;
+}
+
+.btn-volt {
+background: #ffca00 !important;
+color: #000000 !important;
+box-shadow: none;
+transform: none;
+}
+
+.btn-volt-outline {
+background: #ffffff !important;
+color: #000000 !important;
+border: 1px solid #000000 !important;
+border-radius: 8px;
+padding: 0.55rem 1.2rem;
+font-weight: 600;
+transition: background 0.2s ease;
+}
+
+.btn-volt-outline {
+background: #f1f1f1 !important;
+color: #000000 !important;
+}
+
+.btn-cyan {
+background: #e0f7fa !important;
+color: #000000 !important;
+font-weight: 700;
+border: 1px solid #000000 !important;
+border-radius: 8px;
+padding: 0.6rem 1.3rem;
+box-shadow: none;
+}
+
+.btn-cyan {
+background: #c9f0f5 !important;
+color: #000000 !important;
+transform: none;
+}
+
+/* =========================
+6. FORMS AND INPUTS
+========================= */
+
+.form-control,
+.form-select {
+background-color: #ffffff !important;
+border: 1px solid #000000 !important;
+color: #000000 !important;
+border-radius: 6px !important;
+padding: 0.65rem 1rem;
+}
+
+.form-control,
+.form-select {
+background-color: #ffffff !important;
+color: #000000 !important;
+border-color: #000000 !important;
+box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.12) !important;
+}
+
+.form-control::placeholder {
+color: #666666 !important;
+opacity: 1;
+}
+
+.form-select option {
+background-color: #ffffff;
+color: #000000;
+}
+
+.form-label {
+color: #000000 !important;
+font-weight: 500;
+font-size: 0.88rem;
+margin-bottom: 0.4rem;
+}
+
+.input-group-text {
+background: #ffffff !important;
+color: #000000 !important;
+border: 1px solid #000000 !important;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+accent-color: #000000;
+}
+
+/* =========================
+7. BILLING ROWS
+========================= */
+
+.bill-item-row {
+background: #ffffff !important;
+color: #000000 !important;
+border: 1px solid #000000 !important;
+border-radius: 8px;
+}
+
+.serials-container {
+color: #000000;
+border-color: #000000 !important;
+}
+
+.item-total {
+color: #15803d !important;
+}
+
+#subtotal_display,
+#gst_amount_display,
+#grand_total_display {
+color: #000000 !important;
+}
+
+.bg-dark,
+.bg-body-tertiary {
+background: #ffffff !important;
+color: #000000 !important;
+}
+
+/* =========================
+8. TABLES
+========================= */
+
+.volt-table-container {
+overflow-x: auto;
+}
+
+.volt-table {
+width: 100%;
+color: #000000 !important;
+border-collapse: separate;
+border-spacing: 0 0.4rem;
+}
+
+.volt-table th {
+color: #000000 !important;
+font-weight: 700;
+font-size: 0.8rem;
+text-transform: uppercase;
+letter-spacing: 0.6px;
+padding: 0.8rem 1rem;
+background: #ffffff !important;
+border-bottom: 1px solid #000000 !important;
+}
+
+.volt-table td {
+padding: 1rem;
+background: #ffffff !important;
+color: #000000 !important;
+border-top: 1px solid #000000 !important;
+border-bottom: 1px solid #000000 !important;
+vertical-align: middle;
+font-size: 0.92rem;
+}
+
+.volt-table tr td {
+border-left: 1px solid #000000 !important;
+border-radius: 8px 0 0 8px;
+}
+
+.volt-table tr td {
+border-right: 1px solid #000000 !important;
+border-radius: 0 8px 8px 0;
+}
+
+.volt-table tr td {
+background: #f8f9fa !important;
+}
+
+/* =========================
+9. BADGES
+========================= */
+
+.badge-volt {
+background: #fff8cc;
+color: #000000 !important;
+border: 1px solid #000000;
+padding: 0.35rem 0.75rem;
+border-radius: 20px;
+font-weight: 600;
+font-size: 0.78rem;
+}
+
+.badge-low-stock {
+background: #fee2e2;
+color: #991b1b !important;
+border: 1px solid #dc2626;
+padding: 0.35rem 0.75rem;
+border-radius: 20px;
+font-weight: 600;
+font-size: 0.78rem;
+animation: pulseAlert 2s infinite;
+}
+
+.badge-active {
+background: #dcfce7;
+color: #166534 !important;
+border: 1px solid #15803d;
+padding: 0.35rem 0.75rem;
+border-radius: 20px;
+font-weight: 600;
+}
+
+.badge-expiring {
+background: #ffedd5;
+color: #9a3412 !important;
+border: 1px solid #ea580c;
+padding: 0.35rem 0.75rem;
+border-radius: 20px;
+font-weight: 600;
+}
+
+.badge-expired {
+background: #fee2e2;
+color: #991b1b !important;
+border: 1px solid #dc2626;
+padding: 0.35rem 0.75rem;
+border-radius: 20px;
+font-weight: 600;
+}
+
+@keyframes pulseAlert {
+0%, 100% { opacity: 1; }
+50% { opacity: 0.75; }
+}
+
+/* =========================
+10. MODALS
+========================= */
+
+.modal-content {
+background: #ffffff !important;
+border: 1px solid #000000 !important;
+color: #000000 !important;
+border-radius: 12px !important;
+}
+
+.modal-header,
+.modal-footer {
+border-color: #000000 !important;
+}
+
+.modal-title {
+color: #000000 !important;
+}
+
+.btn-close-white {
+filter: none;
+}
+
+/* =========================
+11. ALERTS AND DROPDOWNS
+========================= */
+
+.dropdown-menu {
+background: #ffffff !important;
+border: 1px solid #000000 !important;
+}
+
+.dropdown-item {
+color: #000000 !important;
+}
+
+.dropdown-item {
+background: #f1f1f1 !important;
+color: #000000 !important;
+}
+
+.alert {
+border: 1px solid #000000;
+color: #000000;
+}
+
+hr {
+border-color: #000000;
+opacity: 0.25;
+}
+
+/* =========================
+12. SCROLLBAR
+========================= */
+
+::-webkit-scrollbar {
+width: 8px;
+height: 8px;
+}
+
+::-webkit-scrollbar-track {
+background: #ffffff;
+}
+
+::-webkit-scrollbar-thumb {
+background: #999999;
+border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+background: #555555;
+}
+
+/* =========================
+13. PRINT INVOICE
+========================= */
+
+@media print {
+body {
+background: #ffffff !important;
+color: #000000 !important;
+}
+
+.no-print,
+.volt-navbar,
+button {
+display: none !important;
+}
+
+.print-only {
+display: block !important;
+}
+
+.invoice-box {
+box-shadow: none !important;
+border: 1px solid #000000 !important;
+background: #ffffff !important;
+color: #000000 !important;
+}
+
+.volt-card {
+box-shadow: none !important;
+background: #ffffff !important;
+color: #000000 !important;
+}
+}
+/* =========================================
+   VOLTTRACK DASHBOARD - CLEAN CARDS & HOVER
+========================================= */
+
+/* Remove black borders from dashboard cards */
+.dashboard .volt-card,
+.dashboard .cat-card,
+.dashboard .card,
+.dashboard .stat-card,
+.dashboard .dashboard-card,
+.dashboard .summary-card,
+.dashboard .card-box,
+.dashboard .small-box,
+.dashboard .info-box,
+.dashboard .stat-icon-wrapper {
+    border: none !important;
+    outline: none !important;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Card appearance */
+.dashboard .volt-card,
+.dashboard .cat-card,
+.dashboard .card,
+.dashboard .stat-card,
+.dashboard .dashboard-card,
+.dashboard .summary-card,
+.dashboard .card-box,
+.dashboard .small-box,
+.dashboard .info-box {
+    border-radius: 14px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease,
+                background-color 0.25s ease;
+}
+
+/* Hover effect */
+.dashboard .volt-card:hover,
+.dashboard .cat-card:hover,
+.dashboard .card:hover,
+.dashboard .stat-card:hover,
+.dashboard .dashboard-card:hover,
+.dashboard .summary-card:hover,
+.dashboard .card-box:hover,
+.dashboard .small-box:hover,
+.dashboard .info-box:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 9px 22px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Dashboard icons */
+.dashboard .stat-icon-wrapper {
+    transition: transform 0.25s ease;
+}
+
+.dashboard .stat-icon-wrapper:hover {
+    transform: scale(1.06);
+}
+
+/* Consistent header navigation spacing */
+.volt-navbar .navbar-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.volt-navbar .navbar-nav .nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    white-space: nowrap;
+}
+
+.volt-navbar .navbar-nav .nav-link i {
+    width: 20px;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* Keyboard focus remains visible and accessible */
+.volt-navbar .nav-link:focus-visible {
+    outline: 2px solid #2563eb !important;
+    outline-offset: 2px;
+}
+/* ===== VOLTTRACK DASHBOARD CARDS ===== */
+
+/* Remove black outlines from dashboard boxes */
+.volt-card,
+.cat-card,
+.stat-icon-wrapper {
+    border: none !important;
+    outline: none !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06) !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease,
+                background-color 0.3s ease;
+}
+
+/* Cards pop up when the cursor moves over them */
+.volt-card:hover,
+.cat-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14) !important;
+    background: #ffffff !important;
+}
+
+/* Icons respond smoothly */
+.stat-icon-wrapper {
+    transition: transform 0.3s ease;
+}
+
+.volt-card:hover .stat-icon-wrapper {
+    transform: scale(1.08);
+}
+
+/* ===== SLIDING NAVIGATION HEADER ===== */
+
+.volt-navbar {
+    border-bottom: none !important;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.06);
+}
+
+.volt-navbar .nav-link {
+    position: relative;
+    border: none !important;
+    background: transparent !important;
+    border-radius: 8px;
+    transition: color 0.25s ease, background 0.25s ease,
+                transform 0.25s ease;
+}
+
+/* Slide the menu item slightly on hover */
+.volt-navbar .nav-link:hover {
+    background: #fff8cc !important;
+    transform: translateY(-3px);
+}
+
+/* Sliding underline */
+.volt-navbar .nav-link::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 3px;
+    width: 0;
+    height: 2px;
+    background: #c49a00;
+    transition: width 0.25s ease, left 0.25s ease;
+}
+
+.volt-navbar .nav-link:hover::after,
+.volt-navbar .nav-link.active::after {
+    width: 70%;
+    left: 15%;
+}
+
+/* Align header icons consistently */
+.volt-navbar .nav-link i {
+    width: 20px;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .volt-card,
+    .cat-card,
+    .stat-icon-wrapper,
+    .volt-navbar .nav-link,
+    .volt-navbar .nav-link::after {
+        transition: none !important;
+    }
+
+    .volt-card:hover,
+    .cat-card:hover,
+    .volt-navbar .nav-link:hover {
+        transform: none !important;
+    }
+}

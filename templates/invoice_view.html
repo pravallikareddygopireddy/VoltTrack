@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block title %}Invoice {{ sale.invoice_no }} - VoltTrack{% endblock %}
+
+{% block content %}
+<!-- Top Action Toolbar (Hidden when printing) -->
+<div class="row align-items-center mb-4 no-print">
+    <div class="col-md-6">
+        <a href="{{ url_for('sales') }}" class="btn btn-volt-outline btn-sm mb-2 mb-md-0">
+            <i class="fas fa-arrow-left"></i> Back to Sales History
+        </a>
+    </div>
+    <div class="col-md-6 text-md-end">
+        <button onclick="window.print()" class="btn btn-volt btn-sm me-2">
+            <i class="fas fa-print"></i> Print Invoice
+        </button>
+        <a href="{{ url_for('download_invoice_pdf', sale_id=sale.id) }}" class="btn btn-cyan btn-sm">
+            <i class="fas fa-file-pdf"></i> Download PDF Invoice
+        </a>
+    </div>
+</div>
+
+<!-- Invoice Card Container -->
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card bg-white text-dark shadow-lg border-0 rounded-4 p-4 p-md-5 invoice-box">
+            
+            <!-- Invoice Header -->
+            <div class="row align-items-center pb-4 mb-4 border-bottom border-2">
+                <div class="col-md-7">
+                    <h2 class="fw-bold brand-font text-dark mb-1">
+                        <i class="fas fa-bolt text-warning me-2"></i>VoltTrack Battery Hub
+                    </h2>
+                    <p class="text-secondary small mb-1">Authorized Dealer for Exide, Amaron, Luminous & SF Sonic</p>
+                    <p class="text-muted small mb-0">101 Power House Road, Auto Nagar, Hyderabad - 500032 | GSTIN: 36ABCDE1234F1Z5</p>
+                    <p class="text-muted small mb-0"><i class="fas fa-phone me-1"></i>+91 98765 00000 | <i class="fas fa-envelope me-1"></i>support@volttrack.in</p>
+                </div>
+                <div class="col-md-5 text-md-end mt-3 mt-md-0">
+                    <h3 class="fw-bold text-primary mb-1">TAX INVOICE</h3>
+                    <div class="fw-bold text-dark fs-5 mb-1">{{ sale.invoice_no }}</div>
+                    <div class="text-secondary small">Date: <b>{{ sale.sale_date }}</b></div>
+                    <div class="text-secondary small">Payment Mode: <span class="badge bg-secondary">{{ sale.payment_mode }}</span></div>
+                </div>
+            </div>
+
+            <!-- Customer Details Block -->
+            <div class="row mb-4 p-3 bg-light rounded-3 border">
+                <div class="col-md-6">
+                    <div class="text-muted text-uppercase fw-bold small mb-1">Billed To Customer:</div>
+                    <div class="fw-bold fs-5 text-dark">{{ sale.customer_name }}</div>
+                    <div class="text-secondary"><i class="fas fa-phone me-1"></i>{{ sale.customer_phone }}</div>
+                    <div class="text-muted small">{{ sale.customer_address or 'N/A' }}</div>
+                </div>
+                <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                    <div class="text-muted text-uppercase fw-bold small mb-1">Status:</div>
+                    <span class="badge bg-success fs-6 px-3 py-2"><i class="fas fa-check-circle me-1"></i>PAID IN FULL</span>
+                </div>
+            </div>
+
+            <!-- Invoice Item Table -->
+            <div class="table-responsive mb-4">
+                <table class="table table-bordered align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Battery Description</th>
+                            <th>Brand</th>
+                            <th class="text-center">Qty</th>
+                            <th class="text-end">Price (₹)</th>
+                            <th class="text-end">Total Amount (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>
+                                    <div class="fw-bold text-dark">{{ item.product_name }}</div>
+                                </td>
+                                <td><span class="badge bg-secondary">{{ item.brand }}</span></td>
+                                <td class="text-center fw-bold">{{ item.quantity }}</td>
+                                <td class="text-end">₹{{ "{:,.2f}".format(item.unit_price) }}</td>
+                                <td class="text-end fw-bold">₹{{ "{:,.2f}".format(item.total_price) }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Calculations Breakdown -->
+            <div class="row justify-content-end mb-4">
+                <div class="col-md-5">
+                    <div class="p-3 bg-light rounded-3 border">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary">Subtotal:</span>
+                            <span class="fw-bold">₹{{ "{:,.2f}".format(sale.subtotal) }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary">GST Tax ({{ sale.gst_rate }}%):</span>
+                            <span class="fw-bold text-primary">₹{{ "{:,.2f}".format(sale.gst_amount) }}</span>
+                        </div>
+                        {% if sale.old_battery_rebate > 0 %}
+                            <div class="d-flex justify-content-between mb-2 text-danger">
+                                <span>Old Battery Scrap Rebate (-):</span>
+                                <span class="fw-bold">- ₹{{ "{:,.2f}".format(sale.old_battery_rebate) }}</span>
+                            </div>
+                        {% endif %}
+                        <hr class="my-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold text-dark fs-5">TOTAL AMOUNT:</span>
+                            <span class="fw-bold text-success fs-4">₹{{ "{:,.2f}".format(sale.total_amount) }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registered Warranty Serial Numbers -->
+            {% if warranties %}
+                <div class="mb-4 p-3 bg-light rounded-3 border">
+                    <h6 class="fw-bold text-dark mb-2">
+                        <i class="fas fa-shield-alt text-primary me-2"></i>Registered Battery Warranty Details
+                    </h6>
+                    <table class="table table-sm table-bordered bg-white mb-0">
+                        <thead class="table-secondary">
+                            <tr>
+                                <th>Product</th>
+                                <th>Serial Number</th>
+                                <th>Warranty</th>
+                                <th>Warranty Expiry Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for w in warranties %}
+                                <tr>
+                                    <td>{{ w.product_name }}</td>
+                                    <td class="font-monospace fw-bold text-primary">{{ w.serial_number }}</td>
+                                    <td>{{ w.warranty_months }} Months</td>
+                                    <td class="fw-bold text-dark">{{ w.expiry_date }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+
+            <!-- Terms & Signatures Footer -->
+            <div class="row pt-4 border-top">
+                <div class="col-md-7">
+                    <div class="small text-muted">
+                        <b>Terms & Conditions:</b><br/>
+                        1. Preserve invoice copy & serial number for manufacturer warranty verification.<br/>
+                        2. Goods once sold will not be returned without valid reason.<br/>
+                        3. Subject to Hyderabad Jurisdiction.
+                    </div>
+                </div>
+                <div class="col-md-5 text-md-end mt-4 mt-md-0">
+                    <div class="text-dark fw-bold mb-4">For VoltTrack Battery Hub</div>
+                    <div class="text-muted small">Authorized Signatory</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

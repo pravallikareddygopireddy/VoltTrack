@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block title %}Warranty Tracker - VoltTrack Battery Shop{% endblock %}
+
+{% block content %}
+<div class="row align-items-center mb-4">
+    <div class="col-md-7">
+        <h2 class="fw-bold mb-1 brand-font text-white">
+            <i class="fas fa-shield-halved text-cyan me-2"></i>Battery Warranty Tracker
+        </h2>
+        <p class="text-muted mb-0">Search serial numbers instantly to check warranty validity, remaining days, and record claims.</p>
+    </div>
+</div>
+
+<!-- Search Bar & Status Filter -->
+<div class="volt-card mb-4">
+    <form method="GET" action="{{ url_for('warranty') }}" class="row g-2 align-items-center">
+        <div class="col-md-6">
+            <div class="input-group">
+                <span class="input-group-text bg-transparent border-secondary text-cyan"><i class="fas fa-barcode"></i></span>
+                <input type="text" name="q" class="form-control form-control-lg fs-6" placeholder="Enter Serial Number (e.g. EX-2026-88491), Customer Name or Phone..." value="{{ search_query }}">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <select name="status" class="form-select form-select-lg fs-6" onchange="this.form.submit()">
+                <option value="">All Warranty Statuses</option>
+                <option value="Active" {% if selected_status == 'Active' %}selected{% endif %}>🟢 Active Warranty</option>
+                <option value="Expiring Soon" {% if selected_status == 'Expiring Soon' %}selected{% endif %}>🟡 Expiring Soon (<=30 Days)</option>
+                <option value="Expired" {% if selected_status == 'Expired' %}selected{% endif %}>🔴 Expired</option>
+                <option value="Replaced" {% if selected_status == 'Replaced' %}selected{% endif %}>🔄 Replaced Under Warranty</option>
+            </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-volt w-100"><i class="fas fa-search me-1"></i> Check Warranty</button>
+            <a href="{{ url_for('warranty') }}" class="btn btn-volt-outline w-100">Reset</a>
+        </div>
+    </form>
+</div>
+
+<!-- Warranty Results Grid / Table -->
+<div class="volt-card">
+    <div class="table-responsive">
+        <table class="table volt-table align-middle">
+            <thead>
+                <tr>
+                    <th>Serial Number</th>
+                    <th>Customer Details</th>
+                    <th>Battery Product</th>
+                    <th>Purchase Date</th>
+                    <th>Warranty Period</th>
+                    <th>Expiry Date</th>
+                    <th>Warranty Status</th>
+                    <th class="text-end">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if warranties %}
+                    {% for w in warranties %}
+                        <tr>
+                            <td>
+                                <div class="fw-bold text-warning font-monospace fs-6">
+                                    <i class="fas fa-qrcode text-cyan me-1"></i>{{ w.serial_number }}
+                                </div>
+                                <div class="text-muted small">Inv: {{ w.invoice_no or 'N/A' }}</div>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-white">{{ w.customer_name }}</div>
+                                <div class="text-muted small"><i class="fas fa-phone me-1 text-success"></i>{{ w.customer_phone }}</div>
+                            </td>
+                            <td>
+                                <div class="text-white fw-medium">{{ w.product_name }}</div>
+                            </td>
+                            <td>
+                                <div class="text-white">{{ w.purchase_date }}</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-dark text-muted border border-secondary">{{ w.warranty_months }} Months</span>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-white">{{ w.expiry_date }}</div>
+                            </td>
+                            <td>
+                                {% if w.calculated_status == 'Active' %}
+                                    <span class="badge badge-active fs-6" title="Warranty Valid">
+                                        🟢 Active ({{ w.days_remaining }} Days Left)
+                                    </span>
+                                {% elif w.calculated_status == 'Expiring Soon' %}
+                                    <span class="badge badge-expiring fs-6" title="Expires in less than 30 days">
+                                        🟡 Expiring Soon ({{ w.days_remaining }} Days Left)
+                                    </span>
+                                {% elif w.calculated_status == 'Expired' %}
+                                    <span class="badge badge-expired fs-6" title="Warranty Has Expired">
+                                        🔴 Expired ({{ w.days_remaining|abs }} Days Ago)
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-info text-dark fs-6">
+                                        🔄 {{ w.calculated_status }}
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-volt-outline" data-bs-toggle="modal" data-bs-target="#updateWarrantyModal{{ w.id }}">
+                                    <i class="fas fa-sync-alt me-1"></i> Update Status
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Modal to update warranty claim status -->
+                        <div class="modal fade" id="updateWarrantyModal{{ w.id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <form action="{{ url_for('update_warranty_status', warranty_id=w.id) }}" method="POST">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title fw-bold"><i class="fas fa-shield-alt text-warning me-2"></i>Update Warranty Status</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label class="form-label">Serial Number</label>
+                                                <input type="text" class="form-control" value="{{ w.serial_number }}" readonly>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Status</label>
+                                                <select name="status" class="form-select">
+                                                    <option value="Active" {% if w.status == 'Active' %}selected{% endif %}>🟢 Active</option>
+                                                    <option value="Under Claim" {% if w.status == 'Under Claim' %}selected{% endif %}>🟡 Under Claim / Inspection</option>
+                                                    <option value="Replaced" {% if w.status == 'Replaced' %}selected{% endif %}>🔄 Battery Replaced Under Warranty</option>
+                                                    <option value="Claim Rejected" {% if w.status == 'Claim Rejected' %}selected{% endif %}>🔴 Claim Rejected</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Warranty Notes / Replacement Serial No</label>
+                                                <textarea name="notes" class="form-control" rows="3" placeholder="Add claim notes or replacement unit details...">{{ w.notes or '' }}</textarea>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn btn-volt">Save Warranty Update</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="fas fa-shield-exclamation fs-1 mb-2 text-warning"></i>
+                            <p class="mb-0">No warranty records found matching your query.</p>
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Suppliers - VoltTrack Battery Shop{% endblock %}
+
+{% block content %}
+<div class="row align-items-center mb-4">
+    <div class="col-md-7">
+        <h2 class="fw-bold mb-1 brand-font text-white">
+            <i class="fas fa-truck-field text-warning me-2"></i>Battery Suppliers Directory
+        </h2>
+        <p class="text-muted mb-0">Manage supplier contact details, distributors, and battery supply partners.</p>
+    </div>
+    <div class="col-md-5 text-md-end mt-3 mt-md-0">
+        <button type="button" class="btn btn-volt" data-bs-toggle="modal" data-bs-target="#addSupplierModal">
+            <i class="fas fa-plus-circle"></i> Add New Supplier
+        </button>
+    </div>
+</div>
+
+<div class="row g-3">
+    {% if suppliers %}
+        {% for s in suppliers %}
+            <div class="col-md-6 col-lg-4">
+                <div class="volt-card">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <h5 class="fw-bold text-white mb-0 brand-font">{{ s.name }}</h5>
+                        <span class="badge badge-volt"><i class="fas fa-handshake me-1"></i>Distributor</span>
+                    </div>
+                    <div class="mb-2 text-muted small">
+                        <i class="fas fa-user text-warning me-2"></i>Contact: <b>{{ s.contact_person or 'N/A' }}</b>
+                    </div>
+                    <div class="mb-2 text-muted small">
+                        <i class="fas fa-phone text-success me-2"></i>Phone: <b>{{ s.phone or 'N/A' }}</b>
+                    </div>
+                    <div class="mb-2 text-muted small">
+                        <i class="fas fa-envelope text-cyan me-2"></i>Email: {{ s.email or 'N/A' }}
+                    </div>
+                    <div class="text-muted small">
+                        <i class="fas fa-map-marker-alt text-danger me-2"></i>Address: {{ s.address or 'N/A' }}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="volt-card text-center py-5 text-muted">
+                <i class="fas fa-truck-moving fs-1 mb-2"></i>
+                <p>No suppliers registered yet. Click "Add New Supplier" to create one.</p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Add Supplier Modal -->
+<div class="modal fade" id="addSupplierModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ url_for('add_supplier') }}" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-truck-field text-warning me-2"></i>Add Battery Supplier</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body row g-3">
+                    <div class="col-12">
+                        <label class="form-label">Supplier / Agency Name *</label>
+                        <input type="text" name="name" class="form-control" placeholder="e.g. South Zone Battery Agency" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Contact Person</label>
+                        <input type="text" name="contact_person" class="form-control" placeholder="e.g. Rajesh Kumar">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Phone Number *</label>
+                        <input type="text" name="phone" class="form-control" placeholder="+91 98765 43210" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" name="email" class="form-control" placeholder="sales@supplier.com">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Address</label>
+                        <textarea name="address" class="form-control" rows="2" placeholder="Industrial Estate, Hyderabad"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-volt">Save Supplier</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

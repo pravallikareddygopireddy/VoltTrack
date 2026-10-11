@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}Sales History - VoltTrack Battery Shop{% endblock %}
+
+{% block content %}
+<div class="row align-items-center mb-4">
+    <div class="col-md-7">
+        <h2 class="fw-bold mb-1 brand-font text-white">
+            <i class="fas fa-receipt text-warning me-2"></i>Sales Register & Revenue History
+        </h2>
+        <p class="text-muted mb-0">View all completed sales, invoices, GST collected, and old battery rebates.</p>
+    </div>
+</div>
+
+<!-- Sales Metrics Summary -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="volt-card d-flex align-items-center justify-content-between">
+            <div>
+                <div class="stat-label">Total Invoices</div>
+                <div class="stat-value text-white">{{ total_count }}</div>
+            </div>
+            <div class="stat-icon-wrapper stat-icon-cyan">
+                <i class="fas fa-file-invoice"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="volt-card d-flex align-items-center justify-content-between">
+            <div>
+                <div class="stat-label">Total Revenue</div>
+                <div class="stat-value text-success">₹{{ "{:,.2f}".format(total_revenue) }}</div>
+            </div>
+            <div class="stat-icon-wrapper stat-icon-green">
+                <i class="fas fa-indian-rupee-sign"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="volt-card d-flex align-items-center justify-content-between">
+            <div>
+                <div class="stat-label">Total GST Collected</div>
+                <div class="stat-value text-warning">₹{{ "{:,.2f}".format(total_gst) }}</div>
+            </div>
+            <div class="stat-icon-wrapper stat-icon-yellow">
+                <i class="fas fa-percent"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search & Filter Bar -->
+<div class="volt-card mb-4">
+    <form method="GET" action="{{ url_for('sales') }}" class="row g-2 align-items-center">
+        <div class="col-md-6">
+            <div class="input-group">
+                <span class="input-group-text bg-transparent border-secondary text-muted"><i class="fas fa-search"></i></span>
+                <input type="text" name="search" class="form-control" placeholder="Search by Invoice No, Customer Name, Phone..." value="{{ search }}">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <select name="payment_mode" class="form-select" onchange="this.form.submit()">
+                <option value="">All Payment Modes</option>
+                <option value="Cash" {% if selected_payment == 'Cash' %}selected{% endif %}>Cash</option>
+                <option value="UPI" {% if selected_payment == 'UPI' %}selected{% endif %}>UPI</option>
+                <option value="Credit Card" {% if selected_payment == 'Credit Card' %}selected{% endif %}>Credit Card</option>
+                <option value="Debit Card" {% if selected_payment == 'Debit Card' %}selected{% endif %}>Debit Card</option>
+            </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-volt w-100">Filter</button>
+            <a href="{{ url_for('sales') }}" class="btn btn-volt-outline w-100">Reset</a>
+        </div>
+    </form>
+</div>
+
+<!-- Sales Table -->
+<div class="volt-card">
+    <div class="table-responsive">
+        <table class="table volt-table align-middle">
+            <thead>
+                <tr>
+                    <th>Invoice No</th>
+                    <th>Date & Time</th>
+                    <th>Customer Name</th>
+                    <th>Phone</th>
+                    <th>Subtotal</th>
+                    <th>GST Amount</th>
+                    <th>Scrap Rebate</th>
+                    <th>Grand Total</th>
+                    <th>Payment</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if sales %}
+                    {% for s in sales %}
+                        <tr>
+                            <td class="fw-bold text-warning font-monospace">{{ s.invoice_no }}</td>
+                            <td class="text-muted small">{{ s.sale_date }}</td>
+                            <td class="fw-bold text-white">{{ s.customer_name }}</td>
+                            <td class="text-muted small">{{ s.customer_phone }}</td>
+                            <td class="text-muted">₹{{ "{:,.2f}".format(s.subtotal) }}</td>
+                            <td class="text-cyan">₹{{ "{:,.2f}".format(s.gst_amount) }}</td>
+                            <td class="text-danger">{% if s.old_battery_rebate > 0 %}-₹{{ "{:,.2f}".format(s.old_battery_rebate) }}{% else %}-{% endif %}</td>
+                            <td class="fw-bold text-success fs-6">₹{{ "{:,.2f}".format(s.total_amount) }}</td>
+                            <td><span class="badge bg-secondary">{{ s.payment_mode }}</span></td>
+                            <td class="text-end">
+                                <a href="{{ url_for('view_invoice', sale_id=s.id) }}" class="btn btn-sm btn-volt-outline me-1">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                                <a href="{{ url_for('download_invoice_pdf', sale_id=s.id) }}" class="btn btn-sm btn-cyan" title="Download PDF">
+                                    <i class="fas fa-file-pdf"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="10" class="text-center py-4 text-muted">
+                            No sales records found.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Bill - VoltTrack Battery Shop{% endblock %}
+
+{% block content %}
+<div class="row align-items-center mb-4">
+    <div class="col-md-7">
+        <h2 class="fw-bold mb-1 brand-font text-white">
+            <i class="fas fa-file-invoice-dollar text-warning me-2"></i>Create Battery Invoice
+        </h2>
+        <p class="text-muted mb-0">Generate customer bills, collect GST, register battery serial numbers for warranty & adjust stock.</p>
+    </div>
+</div>
+
+<form action="{{ url_for('create_bill') }}" method="POST" id="billingForm">
+    <div class="row g-4">
+        <!-- Customer Details & Payment Options -->
+        <div class="col-lg-4">
+            <div class="volt-card mb-4">
+                <h5 class="fw-bold mb-3 brand-font text-white">
+                    <i class="fas fa-user-tag text-warning me-2"></i>1. Customer Details
+                </h5>
+
+                <div class="mb-3">
+                    <label class="form-label">Customer Name *</label>
+                    <input type="text" name="customer_name" class="form-control" placeholder="Enter customer name" required> 
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Phone Number *</label>
+                     <input type="text" name="customer_phone" class="form-control" placeholder="Enter phone number" required> 
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Customer Address / City</label>
+                    <textarea name="customer_address" class="form-control" placeholder="Enter address"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Payment Mode</label>
+                    <select name="payment_mode" class="form-select">
+                        <option value="Cash" selected>💵 Cash</option>
+                        <option value="UPI">📱 UPI / QR Code</option>
+                        <option value="Credit Card">💳 Credit Card</option>
+                        <option value="Debit Card">💳 Debit Card</option>
+                        <option value="Net Banking">🏦 Net Banking</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Tax & Trade-In Rebate Settings -->
+            <div class="volt-card">
+                <h5 class="fw-bold mb-3 brand-font text-white">
+                    <i class="fas fa-calculator text-cyan me-2"></i>2. Tax & Old Battery Rebate
+                </h5>
+
+                <div class="mb-3">
+                    <label class="form-label">GST Rate (%)</label>
+                    <div class="input-group">
+                        <input type="number" step="0.5" id="gst_rate" name="gst_rate" class="form-control" value="18.0" oninput="updateBillingCalculations()">
+                        <span class="input-group-text bg-dark text-muted">%</span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Old Battery Scrap Rebate (₹)</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-dark text-warning">₹</span>
+                        <input type="number" step="10" id="old_battery_rebate" name="old_battery_rebate" class="form-control" value="0" placeholder="e.g. 500" oninput="updateBillingCalculations()">
+                    </div>
+                    <small class="text-muted">Trade-in discount for old returned battery</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Selection & Warranty Serial Numbers -->
+        <div class="col-lg-8">
+            <div class="volt-card">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h5 class="fw-bold mb-0 brand-font text-white">
+                        <i class="fas fa-cart-flatbed text-warning me-2"></i>3. Selected Batteries
+                    </h5>
+                    <button type="button" class="btn btn-volt-outline btn-sm" onclick="addBillingRow()">
+                        <i class="fas fa-plus"></i> Add Another Item
+                    </button>
+                </div>
+
+                <div id="billItemsContainer">
+                    <!-- Default Row 1 -->
+                    <div class="bill-item-row p-3 mb-3 border border-secondary rounded-3 bg-dark">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-md-5">
+                                <label class="form-label small text-muted">Select Battery Product *</label>
+                                <select name="product_id[]" class="form-select product-select" onchange="updateBillingCalculations()" required>
+                                    <option value="">-- Choose Battery --</option>
+                                    {% for p in products %}
+                                        <option value="{{ p.id }}" data-price="{{ p.selling_price }}" data-brand="{{ p.brand }}" data-warranty="{{ p.warranty_months }}" data-stock="{{ p.stock_qty }}">
+                                            {{ p.brand }} {{ p.name }} (Stock: {{ p.stock_qty }}) - ₹{{ "{:,.2f}".format(p.selling_price) }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small text-muted">Qty *</label>
+                                <input type="number" name="quantity[]" class="form-control qty-input" value="1" min="1" max="100" oninput="updateBillingCalculations()" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small text-muted">Unit Price (₹)</label>
+                                <input type="number" step="0.01" name="price[]" class="form-control price-input" oninput="this.dataset.manual='true'; updateBillingCalculations()" required>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <label class="form-label small text-muted">Line Total</label>
+                                <div class="fw-bold text-success fs-6 item-total">₹0.00</div>
+                            </div>
+                        </div>
+
+                        <!-- Dynamic Serial Numbers for Warranty Registration -->
+                        <div class="serials-container mt-2 pt-2 border-top border-secondary">
+                            <!-- Populated via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Invoice Summary Calculation Box -->
+                <div class="mt-4 p-3 rounded-3 bg-body-tertiary border border-secondary">
+                    <div class="row text-center text-md-end g-2 align-items-center">
+                        <div class="col-md-3">
+                            <div class="text-muted small">SUBTOTAL</div>
+                            <div class="fw-bold text-white fs-5" id="subtotal_display">₹0.00</div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-muted small">GST TAX</div>
+                            <div class="fw-bold text-cyan fs-5" id="gst_amount_display">₹0.00</div>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <div class="text-muted small">GRAND TOTAL AMOUNT</div>
+                            <div class="fw-bold text-warning fs-3" id="grand_total_display">₹0.00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 text-end">
+                    <button type="submit" class="btn btn-volt btn-lg px-4">
+                        <i class="fas fa-check-circle me-2"></i>Generate Bill & Register Warranty
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let productOptionsHTML = `{% for p in products %}
+    <option value="{{ p.id }}" data-price="{{ p.selling_price }}" data-brand="{{ p.brand }}" data-warranty="{{ p.warranty_months }}" data-stock="{{ p.stock_qty }}">
+        {{ p.brand }} {{ p.name }} (Stock: {{ p.stock_qty }}) - ₹{{ "{:,.2f}".format(p.selling_price) }}
+    </option>
+{% endfor %}`;
+
+function addBillingRow() {
+    const container = document.getElementById('billItemsContainer');
+    const rowIndex = container.querySelectorAll('.bill-item-row').length;
+
+    const row = document.createElement('div');
+    row.className = 'bill-item-row p-3 mb-3 border border-secondary rounded-3 bg-dark';
+    row.innerHTML = `
+        <div class="row g-2 align-items-center">
+            <div class="col-md-5">
+                <label class="form-label small text-muted">Select Battery Product *</label>
+                <select name="product_id[]" class="form-select product-select" onchange="updateBillingCalculations()" required>
+                    <option value="">-- Choose Battery --</option>
+                    ${productOptionsHTML}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small text-muted">Qty *</label>
+                <input type="number" name="quantity[]" class="form-control qty-input" value="1" min="1" max="100" oninput="updateBillingCalculations()" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small text-muted">Unit Price (₹)</label>
+                <input type="number" step="0.01" name="price[]" class="form-control price-input" oninput="this.dataset.manual='true'; updateBillingCalculations()" required>
+            </div>
+            <div class="col-md-2 text-end">
+                <label class="form-label small text-muted">Line Total</label>
+                <div class="d-flex align-items-center justify-content-end gap-2">
+                    <div class="fw-bold text-success fs-6 item-total">₹0.00</div>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.bill-item-row').remove(); updateBillingCalculations();">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="serials-container mt-2 pt-2 border-top border-secondary"></div>
+    `;
+    container.appendChild(row);
+}
+</script>
+{% endblock %}

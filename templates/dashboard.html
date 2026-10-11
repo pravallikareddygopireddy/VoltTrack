@@ -1,0 +1,346 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - VoltTrack Battery Shop{% endblock %}
+
+{% block content %}
+<div class="row align-items-center mb-4">
+    <div class="col-md-7">
+        <h2 class="fw-bold mb-1 brand-font text-white">
+            <i class="fas fa-car-battery text-warning me-2"></i>BATTERY SHOP DASHBOARD
+        </h2>
+        <p class="text-muted mb-0">Real-time overview of inventory, daily sales, categories & low stock warnings.</p>
+    </div>
+    <div class="col-md-5 text-md-end mt-3 mt-md-0">
+        <a href="{{ url_for('create_bill') }}" class="btn btn-volt me-2">
+            <i class="fas fa-file-invoice-dollar"></i> Create Bill
+        </a>
+        <a href="{{ url_for('products') }}" class="btn btn-volt-outline">
+            <i class="fas fa-plus-circle"></i> Add Stock
+        </a>
+    </div>
+</div>
+
+<!-- 4 Core Metrics Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-xl-3 col-sm-6">
+        <div class="volt-card d-flex align-items-center justify-content-between">
+            <div>
+                <div class="stat-label">Total Products</div>
+                <div class="stat-value text-white">{{ total_products }}</div>
+                <span class="text-muted small"><i class="fas fa-layer-group text-cyan me-1"></i>Unique SKUs</span>
+            </div>
+            <div class="stat-icon-wrapper stat-icon-cyan">
+                <i class="fas fa-boxes-stacked"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-sm-6">
+        <div class="volt-card d-flex align-items-center justify-content-between">
+            <div>
+                <div class="stat-label">Total Batteries</div>
+                <div class="stat-value text-warning">{{ total_batteries }}</div>
+                <span class="text-muted small"><i class="fas fa-battery-full text-warning me-1"></i>In Stock Units</span>
+            </div>
+            <div class="stat-icon-wrapper stat-icon-yellow">
+                <i class="fas fa-charging-station"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-sm-6">
+        <div class="volt-card d-flex align-items-center justify-content-between">
+            <div>
+                <div class="stat-label">Low Stock</div>
+                <div class="stat-value text-danger">{{ low_stock_count }}</div>
+                {% if low_stock_count > 0 %}
+                    <span class="badge badge-low_stock"><i class="fas fa-exclamation-triangle me-1"></i>Needs Re-order</span>
+                {% else %}
+                    <span class="badge badge-active">Stock Healthy</span>
+                {% endif %}
+            </div>
+            <div class="stat-icon-wrapper stat-icon-red">
+                <i class="fas fa-triangle-exclamation"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-sm-6">
+        <div class="volt-card d-flex align-items-center justify-content-between">
+            <div>
+                <div class="stat-label">Today's Sales</div>
+                <div class="stat-value text-success">₹{{ "{:,.0f}".format(today_sales) }}</div>
+                <span class="text-muted small"><i class="fas fa-calendar-day text-success me-1"></i>Revenue Today</span>
+            </div>
+            <div class="stat-icon-wrapper stat-icon-green">
+                <i class="fas fa-indian-rupee-sign"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Action Bar -->
+<div class="volt-card mb-4 py-3">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <span class="fw-bold text-uppercase small text-muted"><i class="fas fa-bolt text-warning me-2"></i>Quick Actions:</span>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{{ url_for('products') }}" class="btn btn-volt-outline btn-sm">
+                <i class="fas fa-plus"></i> Add Stock
+            </a>
+            <a href="{{ url_for('create_bill') }}" class="btn btn-volt btn-sm">
+                <i class="fas fa-receipt"></i> Create Bill
+            </a>
+            <a href="{{ url_for('products') }}" class="btn btn-volt-outline btn-sm">
+                <i class="fas fa-boxes-stacked"></i> Products
+            </a>
+            <a href="{{ url_for('sales') }}" class="btn btn-volt-outline btn-sm">
+                <i class="fas fa-history"></i> Sales History
+            </a>
+            <a href="{{ url_for('warranty') }}" class="btn btn-volt-outline btn-sm">
+                <i class="fas fa-shield-alt text-cyan"></i> Search Warranty
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Category Stock Summary Grid -->
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <div class="volt-card">
+            <h5 class="fw-bold mb-3 brand-font">
+                <i class="fas fa-shapes text-warning me-2"></i>Category Inventory Distribution
+            </h5>
+            <div class="row g-3">
+                <div class="col-md-3 col-sm-6">
+                    <div class="cat-card text-center">
+                        <div class="fs-1 text-primary mb-1">🚗</div>
+                        <div class="cat-number">{{ category_counts['Vehicle Batteries'] }}</div>
+                        <div class="stat-label">Vehicle Batteries</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="cat-card text-center">
+                        <div class="fs-1 text-warning mb-1">🛵</div>
+                        <div class="cat-number">{{ category_counts['Two-wheeler Batteries'] }}</div>
+                        <div class="stat-label">Two-Wheeler Batteries</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="cat-card text-center">
+                        <div class="fs-1 text-success mb-1">🏠</div>
+                        <div class="cat-number">{{ category_counts['Inverter Batteries'] }}</div>
+                        <div class="stat-label">Inverter Batteries</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="cat-card text-center">
+                        <div class="fs-1 text-info mb-1">🔌</div>
+                        <div class="cat-number">{{ category_counts['Other Battery types'] }}</div>
+                        <div class="stat-label">Other Batteries</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts & Low Stock Alerts Row -->
+<div class="row g-3 mb-4">
+    <!-- Chart: Category Breakdown -->
+    <div class="col-lg-6">
+        <div class="volt-card">
+            <h5 class="fw-bold mb-3 brand-font">
+                <i class="fas fa-chart-pie text-cyan me-2"></i>Stock Share by Category
+            </h5>
+            <div style="height: 260px;" class="d-flex justify-content-center align-items-center">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart: Brand Inventory -->
+    <div class="col-lg-6">
+        <div class="volt-card">
+            <h5 class="fw-bold mb-3 brand-font">
+                <i class="fas fa-chart-bar text-warning me-2"></i>Stock Units by Brand
+            </h5>
+            <div style="height: 260px;" class="d-flex justify-content-center align-items-center">
+                <canvas id="brandChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Low Stock Warning Table & Recent Sales Row -->
+<div class="row g-3">
+    <!-- Low Stock Alert Panel -->
+    <div class="col-lg-6">
+        <div class="volt-card">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h5 class="fw-bold mb-0 brand-font text-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Low Stock Warning List
+                </h5>
+                <a href="{{ url_for('products', low_stock='1') }}" class="btn btn-volt-outline btn-sm">View All</a>
+            </div>
+            {% if low_stock_products %}
+                <div class="table-responsive">
+                    <table class="table volt-table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Category</th>
+                                <th>In Stock</th>
+                                <th>Min Alert</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in low_stock_products %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold text-white">{{ p.name }}</div>
+                                        <div class="text-muted small">{{ p.brand }} | {{ p.capacity }}</div>
+                                    </td>
+                                    <td><span class="badge bg-dark text-muted">{{ p.category }}</span></td>
+                                    <td>
+                                        <span class="badge badge-low-stock fs-6">{{ p.stock_qty }} Units</span>
+                                    </td>
+                                    <td class="text-muted">{{ p.min_stock_alert }}</td>
+                                    <td>
+                                        <form action="{{ url_for('update_stock', product_id=p.id) }}" method="POST" class="d-inline">
+                                            <input type="hidden" name="change" value="10">
+                                            <button type="submit" class="btn btn-sm btn-outline-warning" title="Add 10 units">
+                                                +10 Stock
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="p-4 text-center text-muted">
+                    <i class="fas fa-check-circle fs-1 text-success mb-2"></i>
+                    <p class="mb-0">All battery products have healthy stock levels!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Sales Panel -->
+    <div class="col-lg-6">
+        <div class="volt-card">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h5 class="fw-bold mb-0 brand-font">
+                    <i class="fas fa-receipt text-success me-2"></i>Recent Sales Transactions
+                </h5>
+                <a href="{{ url_for('sales') }}" class="btn btn-volt-outline btn-sm">Sales Register</a>
+            </div>
+            {% if recent_sales %}
+                <div class="table-responsive">
+                    <table class="table volt-table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Invoice</th>
+                                <th>Customer</th>
+                                <th>Total</th>
+                                <th>Payment</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in recent_sales %}
+                                <tr>
+                                    <td>
+                                        <span class="fw-bold text-warning">{{ s.invoice_no }}</span>
+                                        <div class="text-muted small">{{ s.sale_date[:10] }}</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-white fw-medium">{{ s.customer_name }}</div>
+                                        <div class="text-muted small">{{ s.customer_phone }}</div>
+                                    </td>
+                                    <td class="fw-bold text-success">
+                                        ₹{{ "{:,.2f}".format(s.total_amount) }}
+                                    </td>
+                                    <td><span class="badge bg-secondary">{{ s.payment_mode }}</span></td>
+                                    <td>
+                                        <a href="{{ url_for('view_invoice', sale_id=s.id) }}" class="btn btn-sm btn-volt-outline">
+                                            <i class="fas fa-eye"></i> Invoice
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="p-4 text-center text-muted">
+                    <p class="mb-0">No sales recorded yet. Click "Create Bill" to start!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/api/dashboard_data')
+        .then(response => response.json())
+        .then(data => {
+            // Category Donut Chart
+            const ctxCat = document.getElementById('categoryChart').getContext('2d');
+            new Chart(ctxCat, {
+                type: 'doughnut',
+                data: {
+                    labels: data.categories,
+                    datasets: [{
+                        data: data.category_stocks,
+                        backgroundColor: ['#3b82f6', '#ffd700', '#10b981', '#00f2fe'],
+                        borderColor: '#141c2e',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#94a3b8', font: { family: 'Inter' } }
+                        }
+                    }
+                }
+            });
+
+            // Brand Bar Chart
+            const ctxBrand = document.getElementById('brandChart').getContext('2d');
+            new Chart(ctxBrand, {
+                type: 'bar',
+                data: {
+                    labels: data.brands,
+                    datasets: [{
+                        label: 'In Stock Quantity',
+                        data: data.brand_stocks,
+                        backgroundColor: '#ffd700',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { ticks: { color: '#94a3b8' }, grid: { display: false } },
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255, 255, 255, 0.08)' } }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        });
+});
+</script>
+{% endblock %}
